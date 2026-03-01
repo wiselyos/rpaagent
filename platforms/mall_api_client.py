@@ -52,17 +52,30 @@ class MallAPIClient:
         if not self.config.enable_sign:
             return ""
         
+        # 过滤参数：排除 sign，将所有值转为字符串
+        filtered_params = {}
+        for k, v in params.items():
+            if k == "sign":
+                continue
+            if v is not None:
+                # 将值转为字符串
+                if isinstance(v, (list, dict)):
+                    # JSON 数组/对象需要转为 JSON 字符串
+                    filtered_params[k] = json.dumps(v, separators=(',', ':'), ensure_ascii=False)
+                else:
+                    filtered_params[k] = str(v)
+        
         # 按 key 排序
-        sorted_params = sorted(params.items())
+        sorted_params = sorted(filtered_params.items())
         
         # 拼接字符串
         query_parts = []
         for k, v in sorted_params:
-            if k == "sign":
-                continue
             query_parts.append(f"{k}={v}")
         
         query_string = "&".join(query_parts)
+        
+        print(f"  [DEBUG] 签名字符串: {query_string[:200]}...")  # 调试用，限制长度
         
         # HMAC-SHA256 签名
         sign = hmac.new(
@@ -70,6 +83,8 @@ class MallAPIClient:
             query_string.encode('utf-8'),
             hashlib.sha256
         ).hexdigest()
+        
+        print(f"  [DEBUG] 生成签名: {sign[:16]}...")  # 调试用
         
         return sign
     

@@ -1,0 +1,48 @@
+name: Dependency Update
+
+on:
+  schedule:
+    # 每周一 8:00 检查依赖更新
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+    
+    - name: Install pip-tools
+      run: pip install pip-tools
+    
+    - name: Check for updates
+      run: |
+        pip-compile --upgrade requirements.in -o requirements.txt
+    
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: '⬆️ Update dependencies'
+        title: '⬆️ Automated dependency update'
+        body: |
+          ## 依赖更新
+          
+          此 PR 由 GitHub Actions 自动生成。
+          
+          ### 更新内容
+          - 检查并更新 Python 依赖包
+          - 运行自动化测试
+          
+          ### 检查清单
+          - [ ] 代码审查
+          - [ ] 测试通过
+          - [ ] 手动验证
+        branch: update-dependencies
+        delete-branch: true

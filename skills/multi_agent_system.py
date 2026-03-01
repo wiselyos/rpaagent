@@ -107,9 +107,12 @@ async def main():
     content = ContentCreativeAgent()
     traffic = TrafficManagerAgent()
     
-    # 导入交互服务 Agent
+    # 导入其他 Agent
     from skills.interaction_service_agent import InteractionServiceAgent
+    from skills.best_seller_replication import BestSellerReplicationWorkflow
+    
     interaction = InteractionServiceAgent()
+    replication = BestSellerReplicationWorkflow()
     
     # 注册 Agent
     ceo.register_agent("market", market)
@@ -117,24 +120,21 @@ async def main():
     ceo.register_agent("traffic", traffic)
     ceo.register_agent("interaction", interaction)
     
-    # 场景 1: 市场发现问题
-    print("\n📊 场景 1: 市场洞察发现问题")
+    # ============ 场景 1: 差评驱动优化 ============
+    print("\n" + "=" * 60)
+    print("📊 场景 1: 差评驱动的产品优化闭环")
+    print("=" * 60)
+    
     result = await market.analyze({"reviews": 1000})
     print(f"发现: {result['issue']}")
     
-    # 场景 2: 内容生成解决方案
-    print("\n✍️ 场景 2: 内容创意生成素材")
     content_result = await content.generate({"pain_point": result['issue']})
     print(f"生成文案: {content_result['copies']}")
     
-    # 场景 3: 投流优化
-    print("\n📈 场景 3: 投流操盘优化")
     print(f"优化前 ROI: {await traffic.get_roi()}")
     await traffic.optimize()
     print(f"优化后 ROI: {await traffic.get_roi()}")
     
-    # 场景 4: 交互服务承接转化
-    print("\n🎬 场景 4: 交互服务承接转化")
     product = {
         "name": "抗起球羊毛衫",
         "price": 199,
@@ -144,12 +144,30 @@ async def main():
     await interaction.start(product)
     await interaction.stop()
     
-    # 场景 5: CEO 统筹 PDCA
-    print("\n🎯 场景 5: CEO 统筹 PDCA 闭环")
+    # ============ 场景 2: 爆款复制 ============
+    print("\n" + "=" * 60)
+    print("🚀 场景 2: 爆款复制协作")
+    print("=" * 60)
+    
+    product_catalog = [
+        {"id": "P001", "name": "羊绒保暖背心", "category": "服装", 
+         "price": 89, "features": ["羊绒面料", "无痕设计", "保暖"]},
+        {"id": "P002", "name": "加绒打底裤", "category": "服装",
+         "price": 79, "features": ["加绒加厚", "显瘦", "保暖"]},
+        {"id": "P003", "name": "发热保暖袜", "category": "服装",
+         "price": 39, "features": ["发热纤维", "保暖", "舒适"]}
+    ]
+    
+    await replication.run("BS001", product_catalog)
+    
+    # ============ 场景 3: CEO PDCA ============
+    print("\n" + "=" * 60)
+    print("🎯 场景 3: CEO 统筹 PDCA 闭环")
+    print("=" * 60)
     await ceo.orchestrate()
     
     print("\n" + "=" * 60)
-    print("✅ 演示完成 - 完整端到端闭环")
+    print("✅ 演示完成 - 多场景端到端闭环")
     print("=" * 60)
 
 if __name__ == "__main__":

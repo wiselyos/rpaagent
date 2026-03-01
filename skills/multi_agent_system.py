@@ -93,6 +93,10 @@ class TrafficManagerAgent:
 
 async def main():
     """演示多智能体协作"""
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    
     print("=" * 60)
     print("🤖 电商多智能体协同系统演示")
     print("=" * 60)
@@ -103,10 +107,15 @@ async def main():
     content = ContentCreativeAgent()
     traffic = TrafficManagerAgent()
     
+    # 导入交互服务 Agent
+    from skills.interaction_service_agent import InteractionServiceAgent
+    interaction = InteractionServiceAgent()
+    
     # 注册 Agent
     ceo.register_agent("market", market)
     ceo.register_agent("content", content)
     ceo.register_agent("traffic", traffic)
+    ceo.register_agent("interaction", interaction)
     
     # 场景 1: 市场发现问题
     print("\n📊 场景 1: 市场洞察发现问题")
@@ -124,12 +133,23 @@ async def main():
     await traffic.optimize()
     print(f"优化后 ROI: {await traffic.get_roi()}")
     
-    # 场景 4: CEO 统筹 PDCA
-    print("\n🎯 场景 4: CEO 统筹 PDCA 闭环")
+    # 场景 4: 交互服务承接转化
+    print("\n🎬 场景 4: 交互服务承接转化")
+    product = {
+        "name": "抗起球羊毛衫",
+        "price": 199,
+        "feature": "抗起球、保暖",
+        "material": "澳洲美利奴羊毛"
+    }
+    await interaction.start(product)
+    await interaction.stop()
+    
+    # 场景 5: CEO 统筹 PDCA
+    print("\n🎯 场景 5: CEO 统筹 PDCA 闭环")
     await ceo.orchestrate()
     
     print("\n" + "=" * 60)
-    print("✅ 演示完成")
+    print("✅ 演示完成 - 完整端到端闭环")
     print("=" * 60)
 
 if __name__ == "__main__":
